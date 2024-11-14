@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joke App</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .joke { margin: 1em 0; padding: 0.5em; border: 1px solid #ccc; }
+        .joke strong { color: #333; }
+    </style>
+</head>
+<body>
+    <h1>Joke App</h1>
+    <form id="joke-form">
+        <label for="joke-type">Select joke type:</label>
+        <select id="joke-type">
+            <option value="general">General</option>
+            <option value="programming">Programming</option>
+            <option value="dad">Dad</option>
+            <option value="knock-knock">Knock-knock</option>
+            <option value="any">Any</option>
+        </select>
+
+        <label for="joke-count">Number of jokes:</label>
+        <input type="number" id="joke-count" value="1" min="1">
+
+        <button type="submit">Get Jokes</button>
+    </form>
+
+    <div id="jokes-container"></div>
+
+    <script>
+        document.getElementById('joke-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const type = document.getElementById('joke-type').value;
+            const count = document.getElementById('joke-count').value;
+
+            try {
+                const response = await fetch(`http://localhost:5000/jokes/${type}?count=${count}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const jokes = await response.json();
+
+                const container = document.getElementById('jokes-container');
+                container.innerHTML = '';
+
+                jokes.forEach(joke => {
+                    const jokeDiv = document.createElement('div');
+                    jokeDiv.className = 'joke';
+                    jokeDiv.innerHTML = `<p><strong>${joke.setup}</strong></p><p>${joke.punchline}</p>`;
+                    container.appendChild(jokeDiv);
+                });
+            } catch (error) {
+                console.error('Fetch or parsing error:', error);
+                alert('Error fetching or parsing jokes. Check console for details.');
+            }
+        });
+    </script>
+</body>
+</html>
